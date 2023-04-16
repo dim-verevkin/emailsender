@@ -51,7 +51,7 @@ class EmailsenderCommand extends Command
             foreach ($emails as $value) 
             {
                 $io->text($value['email']);
-                $io->text(date('d M Y H:i:s',$value['validts']));
+                $io->text('Valid to: ' . date('d M Y H:i:s',$value['validts']));
 
                 $email = (new Email())
                 ->from('emailsender_for_test@rambler.ru')

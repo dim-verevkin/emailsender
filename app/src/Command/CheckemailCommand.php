@@ -10,34 +10,46 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+use Doctrine\ORM\EntityManagerInterface;
+
 #[AsCommand(
     name: 'app:checkemail',
     description: 'Add a short description for your command',
 )]
 class CheckemailCommand extends Command
 {
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+
+        parent::__construct();
+    }
+
     protected function configure(): void
     {
-        $this
-            ->addArgument('arg1', InputArgument::OPTIONAL, 'Argument description')
-            ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
-        ;
+        $this->setHelp('This command e-mail checker')
+        ->addArgument('email', InputArgument::REQUIRED, 'e-mail to be checked');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $arg1 = $input->getArgument('arg1');
-
-        if ($arg1) {
-            $io->note(sprintf('You passed an argument: %s', $arg1));
+        $arg = $input->getArgument('email');
+        if (isset($arg))
+        {
+            $em = $this->entityManager;
+            $sql = 'UPDATE emails SET checked = TRUE, valid = :valid WHERE email = :email AND NOT checked';
+            
+            $emails = $em->getConnection()->executeUpdate(
+                $sql,
+                array(
+                    'valid' => boolval(filter_var($arg, FILTER_VALIDATE_EMAIL)),
+                    'email' => $arg,
+                )
+            );
         }
-
-        if ($input->getOption('option1')) {
-            // ...
-        }
-
-        $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
 
         return Command::SUCCESS;
     }

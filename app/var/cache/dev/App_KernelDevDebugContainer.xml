@@ -158,6 +158,17 @@
     <service id="App\Entity" class="App\Entity" abstract="true">
       <tag name="container.excluded" source="in &quot;config/services.yaml&quot;"/>
     </service>
+    <service id="App\Command\CheckemailCommand" class="App\Command\CheckemailCommand" autowire="true" autoconfigure="true">
+      <tag name="console.command"/>
+      <tag name="container.no_preload"/>
+      <argument type="service" id="doctrine.orm.default_entity_manager"/>
+      <call method="setName">
+        <argument>app:checkemail</argument>
+      </call>
+      <call method="setDescription">
+        <argument>Add a short description for your command</argument>
+      </call>
+    </service>
     <service id="App\Command\EmailsenderCommand" class="App\Command\EmailsenderCommand" autowire="true" autoconfigure="true">
       <tag name="console.command"/>
       <tag name="container.no_preload"/>
@@ -2237,6 +2248,8 @@
       </call>
     </service>
     <service id="doctrine.migrations.storage.table_storage" class="Doctrine\Migrations\Metadata\Storage\TableMetadataStorageConfiguration"/>
+    <service id=".instanceof.Symfony\Component\Console\Command\Command.0.App\Command\CheckemailCommand" class="App\Command\CheckemailCommand" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Command\CheckemailCommand" class="App\Command\CheckemailCommand" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Component\Console\Command\Command.0.App\Command\EmailsenderCommand" class="App\Command\EmailsenderCommand" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Command\EmailsenderCommand" class="App\Command\EmailsenderCommand" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".service_locator.7nzbL4K" class="Symfony\Component\DependencyInjection\ServiceLocator">
@@ -2781,6 +2794,13 @@
       </call>
     </service>
     <service id=".errored..service_locator.y4_Zrx..Symfony\Component\Config\Loader\LoaderInterface" class="Symfony\Component\Config\Loader\LoaderInterface"/>
+    <service id=".App\Command\CheckemailCommand.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>app:checkemail</argument>
+      <argument type="collection"/>
+      <argument>Add a short description for your command</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="App\Command\CheckemailCommand"/>
+    </service>
     <service id=".App\Command\EmailsenderCommand.lazy" class="Symfony\Component\Console\Command\LazyCommand">
       <argument>app:emailsender</argument>
       <argument type="collection"/>
@@ -3136,8 +3156,9 @@
     </service>
     <service id="console.command_loader" class="Symfony\Component\Console\CommandLoader\ContainerCommandLoader" public="true">
       <tag name="container.no_preload"/>
-      <argument type="service" id=".service_locator.v0zT4.3"/>
+      <argument type="service" id=".service_locator.07lDJsm"/>
       <argument type="collection">
+        <argument key="app:checkemail">App\Command\CheckemailCommand</argument>
         <argument key="app:emailsender">App\Command\EmailsenderCommand</argument>
         <argument key="about">console.command.about</argument>
         <argument key="assets:install">console.command.assets_install</argument>
@@ -3224,9 +3245,10 @@
         <argument key="make:stimulus-controller">maker.auto_command.make_stimulus_controller</argument>
       </argument>
     </service>
-    <service id=".service_locator.v0zT4.3" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.07lDJsm" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
+        <argument key="App\Command\CheckemailCommand" type="service_closure" id=".App\Command\CheckemailCommand.lazy"/>
         <argument key="App\Command\EmailsenderCommand" type="service_closure" id=".App\Command\EmailsenderCommand.lazy"/>
         <argument key="console.command.about" type="service_closure" id=".console.command.about.lazy"/>
         <argument key="console.command.assets_install" type="service_closure" id=".console.command.assets_install.lazy"/>
