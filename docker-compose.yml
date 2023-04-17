@@ -4,16 +4,13 @@ services:
 
  php:
   container_name: php
-  build:
-    args:
-      user: advant
-      uid: 1000
-    context: .
-    dockerfile: ./php/Dockerfile
+  build: 
+   context: .
+   dockerfile: ./php/Dockerfile
   ports: [ '9000:9000' ]
-  volumes:
-    - ./app:/var/www
-#      condition: service_healthy
+  depends_on:
+    mysql:
+      condition: service_healthy
 
  nginx:
   container_name: nginx
@@ -25,18 +22,18 @@ services:
     - php
 
  mysql:
-  container_name: mysql
   env_file:
    - './app/.env'
   image: 'mysql:8.0' 
+  container_name: mysql
   ports: [ '3306:3306' ]
   volumes: 
     - mysql_data:/var/lib/mysql
-#    - ./mysql/emailsender.sql:/docker-entrypoint-initdb.d/emailsender.sql:ro
-#  healthcheck:
-#      test:  mysql --user=emailsender --password=emailsender -e 'SHOW TABLES FROM emailsender'
-#      timeout: 20s
-#      retries: 10
+    - ./mysql/emailsender.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+  healthcheck:
+      test:  mysql --user=emailsender --password=emailsender -e 'SHOW TABLES FROM emailsender'
+      timeout: 20s
+      retries: 10
 
  myadmin:
   image: phpmyadmin/phpmyadmin
